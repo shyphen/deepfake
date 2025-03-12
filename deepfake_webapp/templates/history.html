@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Deepfake Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <nav class="fixed top-0 w-full bg-gray-800 p-4 text-center shadow-md">
+        <a href="/" class="mx-4 hover:text-blue-400">Home</a>
+        <a href="/detect" class="mx-4 hover:text-blue-400">Detect</a>
+        <a href="/history" class="mx-4 text-blue-400">History</a>
+        <a href="/about" class="mx-4 hover:text-blue-400">About</a>
+    </nav>
+    
+    <section class="flex flex-col items-center justify-center min-h-screen text-center p-6">
+        <h2 class="text-5xl font-extrabold opacity-0" id="title">Prediction History</h2>
+        <p class="text-lg mt-4 opacity-0" id="subtitle">View past deepfake detection results.</p>
+        
+        <table class="mt-6 w-3/4 bg-gray-800 text-white rounded-lg shadow-lg overflow-hidden opacity-0" id="history-table">
+            <thead class="bg-blue-500">
+                <tr>
+                    <th class="p-3">Timestamp</th>
+                    <th class="p-3">Filename</th>
+                    <th class="p-3">Real %</th>
+                    <th class="p-3">Fake %</th>
+                </tr>
+            </thead>
+            <tbody class="text-center"></tbody>
+        </table>
+    </section>
+    
+    <footer class="p-4 bg-blue-500 text-white text-center shadow-md">
+        &copy; 2025 Deepfake Detector | Developed by Anand Singh
+    </footer>
+    
+    <script>
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/get_history');
+                const data = await response.json();
+                const tableBody = document.querySelector("#history-table tbody");
+                tableBody.innerHTML = '';
+                
+                data.slice(-10).reverse().forEach(entry => {
+                    tableBody.innerHTML += `<tr>
+                        <td class="p-3">${entry.Timestamp}</td>
+                        <td class="p-3">${entry.Filename}</td>
+                        <td class="p-3">${entry.Real_Prob.toFixed(2)}%</td>
+                        <td class="p-3">${entry.Fake_Prob.toFixed(2)}%</td>
+                    </tr>`;
+                });
+            } catch (error) {
+                console.error("Error fetching history:", error);
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchHistory();
+            gsap.from("#title", { duration: 1, y: -50, opacity: 0, ease: "power2.out" });
+            gsap.from("#subtitle", { duration: 1, delay: 0.5, y: -20, opacity: 0, ease: "power2.out" });
+            gsap.from("#history-table", { duration: 1, delay: 1, opacity: 0, ease: "power2.out" });
+        });
+    </script>
+</body>
+</html>

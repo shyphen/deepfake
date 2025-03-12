@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detect - Deepfake Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body class="bg-white text-black">
+    <nav class="fixed top-0 w-full bg-gray-200 p-4 text-center shadow-md">
+        <a href="/" class="mx-4 hover:text-blue-600">Home</a>
+        <a href="/detect" class="mx-4 text-blue-600">Detect</a>
+        <a href="/history" class="mx-4 hover:text-blue-600">History</a>
+        <a href="/about" class="mx-4 hover:text-blue-600">About</a>
+    </nav>
+    
+    <section class="flex flex-col items-center justify-center min-h-screen text-center p-6">
+        <h2 class="text-5xl font-extrabold" id="title">Upload an Image</h2>
+        <p class="text-lg mt-4" id="subtitle">Analyze your image with our AI-powered deepfake detection.</p>
+        
+        <input type="file" id="imageInput" accept="image/*" class="mt-6 border p-3 rounded-lg"/>
+        <button onclick="uploadImage()" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700">Detect</button>
+        
+        <p id="result" class="mt-4 font-semibold"></p>
+        <img id="chart" class="mt-4 w-2/3 hidden" src="" alt="Confidence Chart"/>
+    </section>
+    
+    <footer class="p-4 bg-gray-200 text-black text-center shadow-md">
+        &copy; 2025 Deepfake Detector | Developed by Anand Singh
+    </footer>
+    
+    <script>
+        async function uploadImage() {
+            const fileInput = document.getElementById('imageInput');
+            const resultText = document.getElementById('result');
+            const chartImg = document.getElementById('chart');
+            
+            if (!fileInput.files.length) {
+                alert('Please select an image.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+
+            resultText.innerText = 'Processing...';
+            chartImg.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch prediction');
+                }
+                const data = await response.json();
+                resultText.innerText = `Real: ${data.result.Real} | Fake: ${data.result.Fake}`;
+                chartImg.src = `${data.chart}?t=${new Date().getTime()}`;
+                chartImg.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                resultText.innerText = 'Error processing image';
+            }
+        }
+    </script>
+</body>
+</html>

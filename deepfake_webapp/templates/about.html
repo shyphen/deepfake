@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Deepfake Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <nav class="fixed top-0 w-full bg-gray-800 p-4 text-center shadow-md">
+        <a href="/" class="mx-4 hover:text-blue-400">Home</a>
+        <a href="/detect" class="mx-4 hover:text-blue-400">Detect</a>
+        <a href="/history" class="mx-4 hover:text-blue-400">History</a>
+        <a href="/about" class="mx-4 text-blue-400">About</a>
+    </nav>
+    
+    <section class="flex flex-col items-center justify-center min-h-screen text-center p-6">
+        <h2 class="text-5xl font-extrabold opacity-0" id="title">About Deepfake Detection</h2>
+        <p class="text-lg mt-4 opacity-0" id="subtitle">Learn how AI technology helps detect deepfake images.</p>
+        
+        <div class="max-w-4xl mt-6 text-left opacity-0" id="content">
+            <p class="mb-4">Deepfakes are artificially manipulated media generated using deep learning techniques. While deepfake technology can be used for creative applications, it also poses significant risks such as misinformation and fraud.</p>
+            <p class="mb-4">Our Deepfake Detector uses advanced AI models to analyze images and determine their authenticity. By leveraging neural networks, the system can distinguish between real and fake images with high accuracy.</p>
+            <p class="mb-4">This project is powered by EfficientNet, a state-of-the-art deep learning model optimized for image classification tasks. The model has been fine-tuned on deepfake datasets to provide reliable detection results.</p>
+        </div>
+    </section>
+    
+    <footer class="p-4 bg-blue-500 text-white text-center shadow-md">
+        &copy; 2025 Deepfake Detector | Developed by Anand Singh
+    </footer>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.from("#title", { duration: 1, y: -50, opacity: 0, ease: "power2.out" });
+            gsap.from("#subtitle", { duration: 1, delay: 0.5, y: -20, opacity: 0, ease: "power2.out" });
+            gsap.from("#content", { duration: 1, delay: 1, opacity: 0, ease: "power2.out" });
+        });
+    </script>
+</body>
+</html>

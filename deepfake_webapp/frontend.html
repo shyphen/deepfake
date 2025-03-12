@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepfake Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+    
+    <h1 class="text-3xl font-bold mb-4">Deepfake Detector</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+        <input type="file" id="imageInput" accept="image/*" class="mb-4 w-full border p-2 rounded" />
+        <button onclick="uploadImage()" class="bg-blue-500 text-white px-4 py-2 rounded">Detect</button>
+        <p id="result" class="mt-4 font-semibold"></p>
+        <canvas id="chart" class="mt-4"></canvas>
+    </div>
+    
+    <h2 class="text-xl font-bold mt-8">Prediction History</h2>
+    <table class="w-3/4 bg-white shadow-md rounded-lg mt-4">
+        <thead>
+            <tr class="bg-blue-500 text-white">
+                <th class="p-2">Timestamp</th>
+                <th class="p-2">Filename</th>
+                <th class="p-2">Real %</th>
+                <th class="p-2">Fake %</th>
+            </tr>
+        </thead>
+        <tbody id="historyTable" class="text-center"></tbody>
+    </table>
+    
+    <script>
+        async function uploadImage() {
+            const fileInput = document.getElementById('imageInput');
+            if (!fileInput.files.length) {
+                alert('Please select an image.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+
+            document.getElementById('result').innerText = 'Processing...';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                document.getElementById('result').innerText = `Real: ${data.Real} | Fake: ${data.Fake}`;
+                updateChart(parseFloat(data.Real), parseFloat(data.Fake));
+                fetchHistory();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = 'Error processing image';
+            }
+        }
+
+        function updateChart(real, fake) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Fake', 'Real'],
+                    datasets: [{
+                        label: 'Confidence %',
+                        data: [fake, real],
+                        backgroundColor: ['red', 'green']
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/history');
+                const data = await response.json();
+                const table = document.getElementById('historyTable');
+                table.innerHTML = '';
+                data.slice(-5).reverse().forEach(entry => {
+                    table.innerHTML += `<tr>
+                        <td class="p-2">${entry.Timestamp}</td>
+                        <td class="p-2">${entry.Filename}</td>
+                        <td class="p-2">${entry.Real_Prob.toFixed(2)}%</td>
+                        <td class="p-2">${entry.Fake_Prob.toFixed(2)}%</td>
+                    </tr>`;
+                });
+            } catch (error) {
+                console.error('Error fetching history:', error);
+            }
+        }
+
+        fetchHistory();
+    </script>
+</body>
+</html>
